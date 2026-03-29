@@ -14,7 +14,12 @@ import (
 	"google.golang.org/genai"
 )
 
-// Client wraps the Gemini genai client.
+// Generator is the interface for generating content. Extracted for testability.
+type Generator interface {
+	Generate(ctx context.Context, opts GenerateOpts) (string, error)
+}
+
+// Client wraps the Gemini genai client and implements Generator.
 type Client struct {
 	inner *genai.Client
 	model string
