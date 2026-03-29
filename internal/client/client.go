@@ -54,7 +54,7 @@ func (c *Client) Generate(ctx context.Context, opts GenerateOpts) (string, error
 	gcConfig := &genai.GenerateContentConfig{}
 
 	if opts.SystemPrompt != "" {
-		gcConfig.SystemInstruction = genai.NewContentFromText(opts.SystemPrompt, "user")
+		gcConfig.SystemInstruction = genai.NewContentFromText(opts.SystemPrompt, "")
 	}
 
 	if opts.Grounding {

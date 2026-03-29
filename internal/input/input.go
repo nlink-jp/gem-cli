@@ -26,6 +26,22 @@ func ReadSystemPrompt(text, filePath string) (string, error) {
 	return "", nil
 }
 
+// ReadInputFile reads a text file, or stdin if path is "-".
+func ReadInputFile(path string) (string, error) {
+	if path == "-" {
+		data, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return "", fmt.Errorf("read stdin: %w", err)
+		}
+		return string(data), nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("read file %s: %w", path, err)
+	}
+	return string(data), nil
+}
+
 // ReadStdin reads all of stdin if it's not a terminal.
 func ReadStdin() (string, bool, error) {
 	stat, _ := os.Stdin.Stat()
@@ -45,7 +61,7 @@ func ReadStdin() (string, bool, error) {
 
 // BuildContent assembles a []*genai.Part slice from prompt text, stdin data,
 // and multimodal file paths.
-func BuildContent(prompt, stdinData string, hasStdin bool, images, files []string) ([]*genai.Part, error) {
+func BuildContent(prompt, stdinData string, hasStdin bool, fileData string, images, files []string) ([]*genai.Part, error) {
 	var parts []*genai.Part
 
 	// Text
@@ -55,6 +71,9 @@ func BuildContent(prompt, stdinData string, hasStdin bool, images, files []strin
 	}
 	if hasStdin {
 		textParts = append(textParts, stdinData)
+	}
+	if fileData != "" {
+		textParts = append(textParts, fileData)
 	}
 	if len(textParts) > 0 {
 		t := genai.NewPartFromText(strings.Join(textParts, "\n\n"))

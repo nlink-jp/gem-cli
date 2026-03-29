@@ -41,6 +41,8 @@ func newRootCmd() *cobra.Command {
 		flagGrounding       bool
 		flagImages          []string
 		flagFiles           []string
+		flagPrompt          string
+		flagInputFile       string
 	)
 
 	root := &cobra.Command{
@@ -65,6 +67,8 @@ Examples:
 			return runPrompt(cmd, args, runOpts{
 				configPath:       flagConfig,
 				model:            flagModel,
+				prompt:           flagPrompt,
+				inputFile:        flagInputFile,
 				systemPrompt:     flagSystemPrompt,
 				systemPromptFile: flagSystemPromptFile,
 				format:           flagFormat,
@@ -82,10 +86,12 @@ Examples:
 	}
 
 	// Input flags
+	root.Flags().StringVarP(&flagPrompt, "prompt", "p", "", "User prompt text")
+	root.Flags().StringVarP(&flagInputFile, "file", "f", "", "Input file path (read as text, use - for stdin)")
 	root.Flags().StringVarP(&flagSystemPrompt, "system-prompt", "s", "", "System prompt text")
 	root.Flags().StringVarP(&flagSystemPromptFile, "system-prompt-file", "S", "", "System prompt file path")
 	root.Flags().StringSliceVar(&flagImages, "image", nil, "Image file path (can be repeated)")
-	root.Flags().StringSliceVar(&flagFiles, "file", nil, "File path: PDF, audio, video (can be repeated)")
+	root.Flags().StringSliceVar(&flagFiles, "attach", nil, "Attach file: PDF, audio, video (can be repeated)")
 
 	// Model / endpoint
 	root.Flags().StringVarP(&flagModel, "model", "m", "", "Model name (overrides config)")
@@ -115,6 +121,8 @@ Examples:
 type runOpts struct {
 	configPath       string
 	model            string
+	prompt           string
+	inputFile        string
 	systemPrompt     string
 	systemPromptFile string
 	format           string
@@ -141,10 +149,20 @@ func runPrompt(cmd *cobra.Command, args []string, opts runOpts) error {
 		cfg.Model.Name = opts.model
 	}
 
-	// Build prompt from args
-	prompt := ""
-	if len(args) > 0 {
+	// Build prompt: -p flag > positional arg
+	prompt := opts.prompt
+	if prompt == "" && len(args) > 0 {
 		prompt = args[0]
+	}
+
+	// Read input file (-f) as text data
+	var fileData string
+	if opts.inputFile != "" {
+		data, err := input.ReadInputFile(opts.inputFile)
+		if err != nil {
+			return err
+		}
+		fileData = data
 	}
 
 	// Read system prompt
@@ -173,12 +191,15 @@ func runPrompt(cmd *cobra.Command, args []string, opts runOpts) error {
 		return err
 	}
 
-	if prompt == "" && !hasStdin && len(opts.images) == 0 && len(opts.files) == 0 {
+	if prompt == "" && !hasStdin && fileData == "" && len(opts.images) == 0 && len(opts.files) == 0 {
 		return fmt.Errorf("no input provided: pass a prompt argument, pipe data via stdin, or use --image/--file")
 	}
 
-	// Apply data isolation
+	// Apply data isolation to stdin and file input
 	var dataTag string
+	if fileData != "" && !opts.noSafeInput {
+		fileData, dataTag = isolation.Wrap(fileData)
+	}
 	if hasStdin && !opts.noSafeInput {
 		stdinData, dataTag = isolation.Wrap(stdinData)
 		if !opts.quiet {
@@ -190,7 +211,7 @@ func runPrompt(cmd *cobra.Command, args []string, opts runOpts) error {
 	}
 
 	// Build user content: prompt + stdin + multimodal files
-	userContent, err := input.BuildContent(prompt, stdinData, hasStdin, opts.images, opts.files)
+	userContent, err := input.BuildContent(prompt, stdinData, hasStdin, fileData, opts.images, opts.files)
 	if err != nil {
 		return err
 	}

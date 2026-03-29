@@ -66,7 +66,7 @@ func TestDetectMIME(t *testing.T) {
 }
 
 func TestBuildContent_TextOnly(t *testing.T) {
-	parts, err := BuildContent("hello", "", false, nil, nil)
+	parts, err := BuildContent("hello", "", false, "", nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,7 +76,7 @@ func TestBuildContent_TextOnly(t *testing.T) {
 }
 
 func TestBuildContent_WithStdin(t *testing.T) {
-	parts, err := BuildContent("analyze", "data here", true, nil, nil)
+	parts, err := BuildContent("analyze", "data here", true, "", nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,7 +92,7 @@ func TestBuildContent_WithImage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	parts, err := BuildContent("describe", "", false, []string{imgPath}, nil)
+	parts, err := BuildContent("describe", "", false, "", []string{imgPath}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
