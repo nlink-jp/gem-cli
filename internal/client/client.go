@@ -2,6 +2,7 @@
 package client
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/nlink-jp/gem-cli/internal/config"
+	"github.com/nlink-jp/gem-cli/internal/isolation"
 	"google.golang.org/genai"
 )
 
@@ -135,7 +137,49 @@ func loadJSONSchema(path string) (*genai.Schema, error) {
 }
 
 // RunBatch reads stdin line by line and makes one API call per line.
+// Each line is treated as user input with data isolation applied.
 func RunBatch(ctx context.Context, c *Client, cfg *config.Config, sysPrompt string, stream bool, format string, debug bool) error {
-	// TODO: implement batch mode in Phase 3
-	return fmt.Errorf("batch mode is not yet implemented")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Buffer(make([]byte, 0, 1024*1024), 1024*1024) // 1MB line buffer
+
+	lineNum := 0
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		lineNum++
+
+		// Apply data isolation per line
+		wrappedLine, tag := isolation.Wrap(line)
+		lineSysPrompt := sysPrompt
+		if tag != "" {
+			lineSysPrompt = isolation.ExpandTag(sysPrompt, tag)
+		}
+
+		parts := []*genai.Part{genai.NewPartFromText(wrappedLine)}
+
+		if debug {
+			fmt.Fprintf(os.Stderr, "[batch] line %d: %d chars\n", lineNum, len(line))
+		}
+
+		result, err := c.Generate(ctx, GenerateOpts{
+			SystemPrompt: lineSysPrompt,
+			Content:      parts,
+			Stream:       false,
+			Format:       format,
+			Debug:        debug,
+		})
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "[batch] line %d error: %v\n", lineNum, err)
+			continue
+		}
+
+		fmt.Println(strings.TrimSpace(result))
+	}
+
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("read stdin: %w", err)
+	}
+	return nil
 }

@@ -153,7 +153,21 @@ func runPrompt(cmd *cobra.Command, args []string, opts runOpts) error {
 		return err
 	}
 
-	// Read stdin if available
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	// Create Gemini client
+	gemClient, err := client.New(ctx, cfg)
+	if err != nil {
+		return fmt.Errorf("create client: %w", err)
+	}
+
+	// Batch mode: stdin is consumed line by line by RunBatch, not here
+	if opts.batch {
+		return client.RunBatch(ctx, gemClient, cfg, sysPrompt, opts.stream, opts.format, opts.debug)
+	}
+
+	// Read stdin if available (non-batch mode only)
 	stdinData, hasStdin, err := input.ReadStdin()
 	if err != nil {
 		return err
@@ -179,20 +193,6 @@ func runPrompt(cmd *cobra.Command, args []string, opts runOpts) error {
 	userContent, err := input.BuildContent(prompt, stdinData, hasStdin, opts.images, opts.files)
 	if err != nil {
 		return err
-	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
-
-	// Create Gemini client
-	gemClient, err := client.New(ctx, cfg)
-	if err != nil {
-		return fmt.Errorf("create client: %w", err)
-	}
-
-	// Execute
-	if opts.batch {
-		return client.RunBatch(ctx, gemClient, cfg, sysPrompt, opts.stream, opts.format, opts.debug)
 	}
 
 	result, err := gemClient.Generate(ctx, client.GenerateOpts{
