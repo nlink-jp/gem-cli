@@ -1,0 +1,9 @@
+# gem-cli configuration
+# Copy to ~/.config/gem-cli/config.toml
+
+[gcp]
+project  = "your-project-id"
+location = "us-central1"
+
+[model]
+name = "gemini-2.5-flash"
