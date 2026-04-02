@@ -3,11 +3,13 @@ package output
 import (
 	"bytes"
 	"testing"
+
+	"github.com/nlink-jp/gem-cli/internal/client"
 )
 
 func TestWrite_Text(t *testing.T) {
 	var buf bytes.Buffer
-	err := Write(&buf, "hello world", "text")
+	err := Write(&buf, client.Result{Text: "hello world"}, "text")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -18,7 +20,7 @@ func TestWrite_Text(t *testing.T) {
 
 func TestWrite_JSON(t *testing.T) {
 	var buf bytes.Buffer
-	err := Write(&buf, `{"key":"value"}`, "json")
+	err := Write(&buf, client.Result{Text: `{"key":"value"}`}, "json")
 	if err != nil {
 		t.Fatal(err)
 	}
