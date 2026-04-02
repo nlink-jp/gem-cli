@@ -89,6 +89,9 @@ name = "toml-model"
 		t.Fatal(err)
 	}
 
+	// Clear env vars that would override TOML values
+	t.Setenv("GOOGLE_CLOUD_PROJECT", "")
+	t.Setenv("GEM_CLI_PROJECT", "")
 	t.Setenv("GEM_CLI_MODEL", "env-model")
 
 	cfg, err := Load(cfgPath)

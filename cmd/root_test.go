@@ -125,5 +125,29 @@ func TestRunOpts_FieldsExist(t *testing.T) {
 		grounding:        false,
 		images:           nil,
 		files:            nil,
+		chat:             false,
+		session:          "",
+		cache:            false,
+	}
+}
+
+func TestRootCmd_ChatFlag(t *testing.T) {
+	root := newRootCmd()
+	if f := root.Flags().Lookup("chat"); f == nil {
+		t.Error("--chat flag not found")
+	}
+}
+
+func TestRootCmd_CacheFlag(t *testing.T) {
+	root := newRootCmd()
+	if f := root.Flags().Lookup("cache"); f == nil {
+		t.Error("--cache flag not found")
+	}
+}
+
+func TestRootCmd_SessionFlag(t *testing.T) {
+	root := newRootCmd()
+	if f := root.Flags().Lookup("session"); f == nil {
+		t.Error("--session flag not found")
 	}
 }

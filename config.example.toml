@@ -7,3 +7,7 @@ location = "us-central1"
 
 [model]
 name = "gemini-2.5-flash"
+
+[cache]
+enabled = false
+ttl = "3600s"

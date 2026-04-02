@@ -13,6 +13,13 @@ import (
 type Config struct {
 	GCP   GCPConfig   `toml:"gcp"`
 	Model ModelConfig `toml:"model"`
+	Cache CacheConfig `toml:"cache"`
+}
+
+// CacheConfig holds context caching settings.
+type CacheConfig struct {
+	Enabled bool   `toml:"enabled"`
+	TTL     string `toml:"ttl"` // duration string, e.g. "60m" or "3600s"
 }
 
 // GCPConfig holds Google Cloud settings.
