@@ -323,7 +323,7 @@ The system prompt must be at least **1024 tokens** for caching to work. If cache
 
 ```sh
 make build      # Current platform → dist/gem-cli
-make build-all  # All 5 platforms → dist/
+make build-all  # release platforms (darwin arm64 only; no Intel) → dist/
 make test       # Run tests (31 tests across 6 packages)
 make check      # vet + test + build
 ```
