@@ -14,6 +14,7 @@ Part of [cli-series](https://github.com/nlink-jp/cli-series).
 make build    # dist/gem-cli
 make test     # go test ./...
 make check    # vet → test → build
+make verify-release  # gate: .notarized marker + freshness (run before upload)
 ```
 
 ## Key structure
