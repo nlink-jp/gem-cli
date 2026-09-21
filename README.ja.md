@@ -2,7 +2,7 @@
 
 Vertex AI 経由で Google Gemini を操作する CLI クライアント。マルチモーダル入力（画像・PDF・音声・動画）、ストリーミング、バッチ処理、引用付き Google Search Grounding、対話チャットモード、セッション永続化、コンテキストキャッシュ、構造化出力、プロンプトインジェクション防御に対応。
 
-[lite-llm](https://github.com/nlink-jp/lite-llm)（OpenAI 互換）の Gemini ネイティブ版として設計。Gemini 固有機能にフルアクセス可能。
+[llm-cli](https://github.com/nlink-jp/llm-cli)（OpenAI 互換 API 経由のローカル LLM）の Gemini ネイティブ版として設計。Gemini 固有機能にフルアクセス可能。
 
 [English README is here](README.md)
 

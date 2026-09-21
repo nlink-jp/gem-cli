@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   informational `spctl` line may be ignored. Matches the org template
   (CONVENTIONS.md §Code Signing → Verifying a release).
 
+### Documentation
+
+- The README compared gem-cli with lite-llm, which is archived; it now names its
+  successor, llm-cli.
+
 ## [0.4.0] - 2026-07-12
 
 ### Removed

@@ -2,7 +2,7 @@
 
 A CLI client for Google Gemini via Vertex AI. Supports multimodal input (images, PDF, audio, video), streaming, batch processing, Google Search Grounding with citations, interactive chat mode, session persistence, context caching, structured output, and prompt injection protection.
 
-Designed as a Gemini-native counterpart to [lite-llm](https://github.com/nlink-jp/lite-llm) (OpenAI-compatible), with full access to Gemini-specific features.
+Designed as a Gemini-native counterpart to [llm-cli](https://github.com/nlink-jp/llm-cli) (local LLMs through OpenAI-compatible APIs), with full access to Gemini-specific features.
 
 [日本語版 README はこちら](README.ja.md)
 
